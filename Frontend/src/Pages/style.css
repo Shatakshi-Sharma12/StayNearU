@@ -1,0 +1,28 @@
+.no-scroll {
+  overflow: hidden;
+}
+
+.no-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scroll {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+@keyframes float {
+  0% {
+    transform: translatey(0);
+  }
+  50% {
+    transform: translatey(-15px);
+  }
+  100% {
+    transform: translatey(0);
+  }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
