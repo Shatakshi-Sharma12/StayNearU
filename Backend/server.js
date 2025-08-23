@@ -16,7 +16,7 @@ import "./cronJobs.js"
 const app=express();
 
 const corsOptions={
-    origin:'http://localhost:5173',
+    origin:'https://stay-near-u-qffm.vercel.app',
     credentials:true,
 }
 // middleware
