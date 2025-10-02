@@ -2,7 +2,7 @@ import User from "../models/User.js";
 import jwt from 'jsonwebtoken'
 import bcrypt from 'bcrypt'
 import validator from 'validator'
-import nodemailer from 'nodemailer'
+import sgMail from '@sendgrid/mail';
 import Mailgen from 'mailgen'
 
 
@@ -10,7 +10,7 @@ const createToken=(id)=>{
     return jwt.sign({id},process.env.JWT_SECRET)
 }
 let otpStorage={}
-
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 // Signup
 const signup=async (req,res)=>{
     const {name,email,password,userType}=req.body;
@@ -118,34 +118,25 @@ const logout = async (req, res) => {
 }
 
 // sending mail
-const sendMail=async(req,res)=>{
-    const { email, userName, type, details } = req.body;
-    if (!email || !userName || !type) {
+const sendMail = async (req, res) => {
+    const { email, userName } = req.body;
+    if (!email || !userName) {
         return res.status(400).json({ success: false, msg: "Missing required fields" });
     }
 
-    let config={
-        service: process.env.SMTP_SERVICE,
-        auth:{
-            user: process.env.EMAIL,
-            pass: process.env.PASSWORD
+    let Mailgenerator = new Mailgen({
+        theme: 'sketchy',
+        product: {
+            name: 'StayNearU',
+            link: 'http://localhost:5173',
         }
-    };
+    });
 
-    let transporter=nodemailer.createTransport(config);
-    let Mailgenerator=new Mailgen({
-        theme:'sketchy',
-        product:{
-            name:'StayNearU',
-            link:'http://localhost:5173',
-        }
-    })
-
-    let  response = {
+    let response = {
         body: {
             name: userName,
             intro: "Congratulations, you have successfully created your account!",
-            description: "Start exploring our website and enjoy a variety of products and services we offer.",
+            description: "Start exploring our website and enjoy our services.",
             button: {
                 color: '#22BC66',
                 text: 'Go to Homepage',
@@ -155,22 +146,24 @@ const sendMail=async(req,res)=>{
         }
     };
 
-    const Email=process.env.EMAIL;
-    let mail=Mailgenerator.generate(response);
-    let message={
-        from:Email,
-        to:email,
-        subject:"OTP for Email Verification",
-        html: mail
+    const html = Mailgenerator.generate(response);
+
+    const msg = {
+        to: email,
+        from: process.env.SENDGRID_SENDER_EMAIL,
+        subject: "Welcome to StayNearU!",
+        html,
     };
-    try{
-        await transporter.sendMail(message);
-        res.json({success:true,msg:"Email sent successfully!"});
-    }catch(e){
-        console.log(e);
-        res.json({ success: false, msg: "Failed to send email." })
+
+    try {
+        await sgMail.send(msg);
+        res.json({ success: true, msg: "Email sent successfully!" });
+    } catch (err) {
+        console.error(err);
+        res.json({ success: false, msg: "Failed to send email." });
     }
 };
+
 
 // Resend otp
 const resendOtp = async (req, res) => {
@@ -189,15 +182,6 @@ const resendOtp = async (req, res) => {
     }
 };
 const sendOtpMail = async (email, otp) => {
-    let config = {
-        service: process.env.SMTP_SERVICE,
-        auth: {
-            user: process.env.EMAIL,
-            pass: process.env.PASSWORD
-        }
-    };
-
-    let transporter = nodemailer.createTransport(config);
     let Mailgenerator = new Mailgen({
         theme: 'default',
         product: {
@@ -213,38 +197,28 @@ const sendOtpMail = async (email, otp) => {
         }
     };
 
-    const mail = Mailgenerator.generate(response);
-    let message = {
-        from: process.env.EMAIL,
+    const html = Mailgenerator.generate(response);
+
+    const msg = {
         to: email,
+        from: process.env.SENDGRID_SENDER_EMAIL,
         subject: "OTP for Email Verification",
-        html: mail
+        html,
     };
 
-    await transporter.sendMail(message);
+    await sgMail.send(msg);
 };
+
 
 const forgotPassword = async (req, res) => {
     const { email } = req.body;
-    console.log("helllll");
-    
+
     try {
         const user = await User.findOne({ email });
-        if (!user) {
-            return res.json({ success: false, msg: "User does not exist!" });
-        }
+        if (!user) return res.json({ success: false, msg: "User does not exist!" });
 
         const token = createToken(user._id);
 
-        let config = {
-            service: process.env.SMTP_SERVICE,
-            auth: {
-                user: process.env.EMAIL,
-                pass: process.env.PASSWORD,
-            },
-        };
-
-        let transporter = nodemailer.createTransport(config);
         let Mailgenerator = new Mailgen({
             theme: 'default',
             product: {
@@ -253,38 +227,36 @@ const forgotPassword = async (req, res) => {
             },
         });
 
-        const resetLink = `http://localhost:5173/reset-password/${token}`; // Update with your reset password link
+        const resetLink = `http://localhost:5173/reset-password/${token}`;
 
         let response = {
             body: {
-                intro: `You requested a password reset. Click the link below to reset your password:`,
+                intro: `You requested a password reset. Click below to reset your password:`,
                 action: {
-                    instructions: `Reset your password by clicking here:`,
-                    button: {
-                        color: '#22BC66',
-                        text: 'Reset Password',
-                        link: resetLink,
-                    },
+                    instructions: "Reset your password by clicking here:",
+                    button: { color: '#22BC66', text: 'Reset Password', link: resetLink }
                 },
-                outro: "If you didn't request this, please ignore this email.",
-            },
+                outro: "If you didn't request this, please ignore this email."
+            }
         };
 
-        const mail = Mailgenerator.generate(response);
-        let message = {
-            from: process.env.EMAIL,
+        const html = Mailgenerator.generate(response);
+
+        const msg = {
             to: email,
+            from: process.env.SENDGRID_SENDER_EMAIL,
             subject: "Password Reset Request",
-            html: mail,
+            html,
         };
 
-        await transporter.sendMail(message);
+        await sgMail.send(msg);
         res.json({ success: true, msg: "Password reset link sent to your email." });
     } catch (err) {
         console.log(err);
-        return res.json({ success: false, message: "Something went wrong!" });
+        res.json({ success: false, msg: "Something went wrong!" });
     }
 };
+
 
 const resetPassword = async (req, res) => {
     const { password } = req.body;
