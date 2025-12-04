@@ -176,7 +176,8 @@ function Profile() {
                         <p className="font-semibold md:w-1/3 mb-2 md:mb-0">Aadhar:</p>
                         <button
                           className="w-full md:w-2/3 px-2 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 text-xs md:text-sm"
-                          onClick={() => navigate(`${url}/aadhar/${profile.aadhar}`)}
+                          onClick={() => window.open(`${url}/aadhar/${profile.aadharCard}`, "_blank")}
+
                         >
                           View Aadhar
                         </button>
