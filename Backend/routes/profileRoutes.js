@@ -4,11 +4,15 @@ import multer from "multer";
 const profileRouter=express.Router();
 
 const storage = multer.diskStorage({
-    destination:"uploads/profile",
+    destination: function(req, file, cb) {
+        if (file.fieldname === "photo") cb(null, "uploads/profile");
+        else if (file.fieldname === "aadhar") cb(null, "uploads/aadhar");
+    },
     filename: (req, file, cb) => {
-        return cb(null,`${Date.now()}${file.originalname}`)
+        cb(null, `${Date.now()}-${file.originalname}`);
     }
-})
+});
+
 const upload = multer({ storage: storage });
 
 profileRouter.get('/get',getProfile);
