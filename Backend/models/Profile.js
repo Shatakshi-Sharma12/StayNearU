@@ -35,10 +35,10 @@ const profileSchema=new mongoose.Schema({
         trim:true,
     },
     aadharCard: {
-        type:String,
-        trim:true,
-        required:true,
-    },
+    type: String,
+    trim: true,
+    required: false,
+},
     user:{
         type:mongoose.Schema.Types.ObjectId,
         ref:'User'
