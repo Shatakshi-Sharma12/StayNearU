@@ -32,8 +32,8 @@ app.use('/admin',pgAdminRouter);
 app.use('/user',pgUserRouter);
 // app.use("",reviewRouter)
 app.use('/profile',profileRouter);
-app.use("/profile", express.static(path.join(__dirname, "uploads/profile")));
-app.use("/aadhar", express.static(path.join(__dirname, "uploads/aadhar")));
+app.use("/uploads/profile", express.static(path.join(__dirname, "uploads/profile")));
+app.use("/uploads/aadhar", express.static(path.join(__dirname, "uploads/aadhar")));
 app.use("/pg",express.static('uploads/pg'))
 app.use("/make",paymentRouter)
 app.use("/booking",bookingRouter);

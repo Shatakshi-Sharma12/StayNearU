@@ -203,7 +203,8 @@ function Profile() {
                         <button
                           className="w-full md:w-2/3 px-2 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
                           onClick={() =>
-                            window.open(`${url}/aadhar/${profile.aadharCard}`, "_blank")
+                            window.open(`${url}/uploads/aadhar/${profile.aadharCard}`, "_blank")
+
                           }
                         >
                           View Aadhar
@@ -334,7 +335,12 @@ function Profile() {
                 <label htmlFor="img" className="block font-semibold text-gray-700">
                   <img
                     className="w-20 cursor-pointer"
-                    src={photo ? URL.createObjectURL(photo) : assets.upload_photo}
+                    src={
+  profile.photo
+    ? `${url}/uploads/profile/${profile.photo}`
+    : assets.upload_photo
+}
+
                     alt="Upload"
                   />
                 </label>
