@@ -17,8 +17,8 @@ function Profile() {
     parent: "",
     address: ""
   });
-
   const [showPopup, setShowPopup] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const { user } = useSelector((store) => store.auth);
   const userId = user._id;
@@ -33,27 +33,25 @@ function Profile() {
       const res = await axios.get(`${url}/profile/get`, {
         params: { userId },
       });
-
       if (res.data.success) {
         setProfile(res.data.profile);
       }
     } catch (e) {
-      console.log(e);
+      console.error(e);
     }
   };
 
   useEffect(() => {
     fetchData();
-
     const hour = new Date().getHours();
     if (hour < 12) setGreeting("Good Morning");
     else if (hour < 18) setGreeting("Good Afternoon");
     else setGreeting("Good Evening");
   }, []);
 
-  const handleSaveProfile = async (e) => {
-    e.preventDefault();
-
+  // Function to hit API
+  const saveProfileToServer = async () => {
+    setLoading(true);
     try {
       const body = {
         name: profile.name,
@@ -76,7 +74,14 @@ function Profile() {
     } catch (error) {
       console.error(error);
       toast.error("Failed to save profile.");
+    } finally {
+      setLoading(false);
     }
+  };
+
+  const handleSaveProfile = (e) => {
+    e.preventDefault();
+    saveProfileToServer();
   };
 
   return (
@@ -190,7 +195,7 @@ function Profile() {
         </div>
       </div>
 
-      {/* Popup */}
+      {/* Popup Form */}
       {showPopup && (
         <div className="fixed inset-0 bg-gray-900 bg-opacity-70 flex justify-center items-center z-50 p-4">
 
@@ -300,9 +305,10 @@ function Profile() {
 
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-blue-400 text-white rounded-md hover:bg-blue-500"
+                  className={`px-4 py-2 text-white rounded-md ${loading ? "bg-gray-400" : "bg-blue-400 hover:bg-blue-500"}`}
+                  disabled={loading}
                 >
-                  Save
+                  {loading ? "Saving..." : "Save"}
                 </button>
               </div>
 
