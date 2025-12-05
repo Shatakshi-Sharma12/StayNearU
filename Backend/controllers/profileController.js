@@ -20,57 +20,28 @@ const getProfile=async(req,res)=>{
     }
 }
 
-const createOrUpdateProfile = async (req, res) => {
+export const createOrUpdateProfile = async (req, res) => {
   try {
-    const photo = req.files?.photo?.[0]?.filename;
-    const aadharCard = req.files?.aadharCard?.[0]?.filename;
-
     const { name, email, phone, age, gender, parent, address, user } = req.body;
 
-    if (!user) {
-      return res.json({ success: false, message: "User ID missing" });
+    if (!user || !email || !phone || !parent || !address) {
+      return res.status(400).json({
+        success: false,
+        message: "Missing required fields"
+      });
     }
 
-    let profile = await Profile.findOne({ user });
+    const profile = await Profile.findOneAndUpdate(
+      { user },
+      { name, email, phone, age, gender, parent, address },
+      { new: true, upsert: true }
+    );
 
-    if (profile) {
-      // Update profile
-      profile.name = name || profile.name;
-      profile.email = email || profile.email;
-      profile.phone = phone || profile.phone;
-      profile.age = age || profile.age;
-      profile.gender = gender || profile.gender;
-      profile.parent = parent || profile.parent;
-      profile.address = address || profile.address;
+    res.status(200).json({ success: true, profile });
 
-      if (photo) profile.photo = photo;
-      if (aadharCard) profile.aadharCard = aadharCard;
-
-      await profile.save();
-      return res.json({ success: true, message: "Profile updated successfully", profile });
-    }
-
-    // Create new profile
-    const newProfile = new Profile({
-      name,
-      email,
-      phone,
-      age,
-      gender,
-      parent,
-      address,
-      user,
-      photo,
-      aadharCard
-    });
-
-    await newProfile.save();
-
-    res.json({ success: true, message: "Profile created successfully", profile: newProfile });
-
-  } catch (error) {
-    console.log(error);
-    res.json({ success: false, message: "Server error" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: "Server error" });
   }
 };
 

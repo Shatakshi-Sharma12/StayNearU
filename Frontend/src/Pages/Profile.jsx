@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { FaUser, FaBook, FaMapMarkedAlt } from "react-icons/fa";
 import { useSelector } from "react-redux";
-import { assets } from "../assets/assets";
 import axios from "axios";
 import { url } from "../utils/constant";
 import { toast } from "react-toastify";
@@ -16,16 +15,12 @@ function Profile() {
     age: "",
     gender: "",
     parent: "",
-    address: "",
-    photo: "",
-    aadharCard: ""
+    address: ""
   });
 
   const [showPopup, setShowPopup] = useState(false);
-  const [photo, setPhoto] = useState(false);
-  const [aadhar, setAadharFile] = useState(false);
 
-  const { user, token } = useSelector((store) => store.auth);
+  const { user } = useSelector((store) => store.auth);
   const userId = user._id;
   const navigate = useNavigate();
 
@@ -60,26 +55,21 @@ function Profile() {
     e.preventDefault();
 
     try {
-      const formData = new FormData();
-      formData.append("photo", photo);
-      formData.append("aadharCard", aadhar);
-      formData.append("name", profile.name);
-      formData.append("email", profile.email);
-      formData.append("phone", profile.phone);
-      formData.append("age", profile.age);
-      formData.append("gender", profile.gender);
-      formData.append("parent", profile.parent);
-      formData.append("address", profile.address);
-      formData.append("user", userId);
+      const body = {
+        name: profile.name,
+        email: profile.email,
+        phone: profile.phone,
+        age: profile.age,
+        gender: profile.gender,
+        parent: profile.parent,
+        address: profile.address,
+        user: userId,
+      };
 
-      const res = await axios.post(`${url}/profile/create`, formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      const res = await axios.post(`${url}/profile/create`, body);
 
       if (res.data.success) {
-        toast.success(res.data.message);
-        setAadharFile(false);
-        setPhoto(false);
+        toast.success("Profile updated successfully");
         setShowPopup(false);
         navigate("/user/profile");
       }
@@ -159,58 +149,28 @@ function Profile() {
 
                 {/* Content */}
                 {profile.name !== "" ? (
-                  <div className="flex flex-col md:flex-row">
+                  <div className="flex flex-col space-y-4">
 
-                    {/* Profile Image */}
-                    <div className="flex-shrink-0 flex justify-center md:block mb-4 md:mb-0">
-                      <img
-                        src={
-                          profile.photo
-                            ? `${url}/profile/${profile.photo}`
-                            : assets.upload_photo
-                        }
-                        alt="Profile"
-                        className="w-24 h-24 md:w-36 md:h-36 rounded-full border-4 border-blue-400 object-cover shadow-md"
-                      />
-                    </div>
-
-                    {/* Profile Fields */}
-                    <div className="md:ml-8 flex flex-col justify-center space-y-4 w-full">
-                      {[
-                        { label: "Name", value: profile.name },
-                        { label: "Email", value: profile.email },
-                        { label: "Phone", value: profile.phone },
-                        { label: "Age", value: profile.age },
-                        { label: "Parent", value: profile.parent },
-                        { label: "Address", value: profile.address },
-                        { label: "Gender", value: profile.gender },
-                      ].map((field, index) => (
-                        <div
-                          key={index}
-                          className="flex flex-col md:flex-row justify-between items-start md:items-center text-gray-700 text-sm border-b pb-2"
-                        >
-                          <p className="font-semibold md:w-1/3 mb-1 md:mb-0">{field.label}:</p>
-                          <p className="w-full md:w-2/3 px-2 py-1 bg-gray-100 border border-gray-300 rounded">
-                            {field.value}
-                          </p>
-                        </div>
-                      ))}
-
-                      {/* Aadhar */}
-                      <div className="flex flex-col md:flex-row justify-between items-start md:items-center text-gray-700 text-sm">
-                        <p className="font-semibold md:w-1/3 mb-2 md:mb-0">Aadhar:</p>
-
-                        <button
-                          className="w-full md:w-2/3 px-2 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-                          onClick={() =>
-                            window.open(`${url}/uploads/aadhar/${profile.aadharCard}`, "_blank")
-
-                          }
-                        >
-                          View Aadhar
-                        </button>
+                    {/* Fields */}
+                    {[
+                      { label: "Name", value: profile.name },
+                      { label: "Email", value: profile.email },
+                      { label: "Phone", value: profile.phone },
+                      { label: "Age", value: profile.age },
+                      { label: "Parent", value: profile.parent },
+                      { label: "Address", value: profile.address },
+                      { label: "Gender", value: profile.gender },
+                    ].map((field, index) => (
+                      <div
+                        key={index}
+                        className="flex flex-col md:flex-row justify-between items-start md:items-center text-gray-700 text-sm border-b pb-2"
+                      >
+                        <p className="font-semibold md:w-1/3 mb-1 md:mb-0">{field.label}:</p>
+                        <p className="w-full md:w-2/3 px-2 py-1 bg-gray-100 border border-gray-300 rounded">
+                          {field.value}
+                        </p>
                       </div>
-                    </div>
+                    ))}
                   </div>
                 ) : (
                   <div className="text-center">
@@ -230,7 +190,7 @@ function Profile() {
         </div>
       </div>
 
-      {/* Popup Form */}
+      {/* Popup */}
       {showPopup && (
         <div className="fixed inset-0 bg-gray-900 bg-opacity-70 flex justify-center items-center z-50 p-4">
 
@@ -326,45 +286,6 @@ function Profile() {
                   onChange={handleInputChange}
                   className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-600"
                 ></textarea>
-              </div>
-
-              {/* Photo Upload */}
-              <div>
-                <p>Upload Photo</p>
-
-                <label htmlFor="img" className="block font-semibold text-gray-700">
-                  <img
-                    className="w-20 cursor-pointer"
-                    src={
-  profile.photo
-    ? `${url}/uploads/profile/${profile.photo}`
-    : assets.upload_photo
-}
-
-                    alt="Upload"
-                  />
-                </label>
-
-                <input
-                  type="file"
-                  name="photo"
-                  id="img"
-                  accept="image/*"
-                  onChange={(e) => setPhoto(e.target.files[0])}
-                  hidden
-                />
-              </div>
-
-              {/* Aadhar Upload */}
-              <div>
-                <label className="block font-semibold text-gray-700">Aadhar Card (PDF)</label>
-                <input
-                  type="file"
-                  name="aadharCard"
-                  accept=".pdf"
-                  onChange={(e) => setAadharFile(e.target.files[0])}
-                  className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-600"
-                />
               </div>
 
               {/* Buttons */}

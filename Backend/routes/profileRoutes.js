@@ -1,27 +1,9 @@
 import express from "express";
 import { createOrUpdateProfile, getProfile } from "../controllers/profileController.js";
-import multer from "multer";
-const profileRouter=express.Router();
 
-const storage = multer.diskStorage({
-    destination: function(req, file, cb) {
-        if (file.fieldname === "photo") cb(null, "uploads/profile");
-else if (file.fieldname === "aadharCard") cb(null, "uploads/aadhar");
-    },
-    filename: (req, file, cb) => {
-        cb(null, `${Date.now()}-${file.originalname}`);
-    }
-});
+const profileRouter = express.Router();
 
-const upload = multer({ storage: storage });
-
-profileRouter.get('/get',getProfile);
-profileRouter.post(
-    '/create',
-    upload.fields([
-    { name: "photo", maxCount: 1 }, 
-    { name: "aadharCard", maxCount: 1 }   // FIXED
-]),createOrUpdateProfile);
-
+profileRouter.get('/get', getProfile);
+profileRouter.post('/create', createOrUpdateProfile);
 
 export default profileRouter;
