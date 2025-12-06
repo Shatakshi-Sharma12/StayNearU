@@ -56,33 +56,32 @@ const saveProfileToServer = async () => {
   try {
     const formData = new FormData();
 
-    Object.keys(profile).forEach((key) => {
-      console.log("Appending:", key, profile[key]);
+    // Append only text fields
+    const textFields = ["name", "email", "phone", "age", "gender", "parent", "address"];
+    textFields.forEach((key) => {
       formData.append(key, profile[key]);
     });
-    console.log("User ID:", userId);
+
     formData.append("user", userId);
-    console.log("profilephoto:", profile.profilePhotoFile);
-    if (profile.profilePhotoFile) {
+
+    // Handle files only if selected
+    if (profile.profilePhotoFile instanceof File) {
       formData.append("profilePhoto", profile.profilePhotoFile);
     }
 
-    if (profile.aadharFileFile) {
-      console.log("aadharfile:", profile.aadharFileFile);
+    if (profile.aadharFileFile instanceof File) {
       formData.append("aadharFile", profile.aadharFileFile);
     }
 
     const res = await axios.post(`${url}/profile/create`, formData, {
-      headers: { "Content-Type": "multipart/form-data" }
+      headers: { "Content-Type": "multipart/form-data" },
     });
-    console.log(res.data);
 
     if (res.data.success) {
       toast.success("Profile updated successfully");
       setShowPopup(false);
       navigate("/user/profile");
     }
-
   } catch (error) {
     console.error(error);
     toast.error("Failed to save profile.");
@@ -91,10 +90,6 @@ const saveProfileToServer = async () => {
   }
 };
 
-  const handleSaveProfile = (e) => {
-    e.preventDefault();
-    saveProfileToServer();
-  };
 
   return (
     <div className="min-h-screen bg-gradient-to-r from-blue-200 to-teal-50 mt-10 bg-gray-50 flex flex-col">
