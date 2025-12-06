@@ -57,22 +57,25 @@ const saveProfileToServer = async () => {
     const formData = new FormData();
 
     Object.keys(profile).forEach((key) => {
+      console.log("Appending:", key, profile[key]);
       formData.append(key, profile[key]);
     });
-
+    console.log("User ID:", userId);
     formData.append("user", userId);
-
+    console.log("profilephoto:", profile.profilePhotoFile);
     if (profile.profilePhotoFile) {
       formData.append("profilePhoto", profile.profilePhotoFile);
     }
 
     if (profile.aadharFileFile) {
+      console.log("aadharfile:", profile.aadharFileFile);
       formData.append("aadharFile", profile.aadharFileFile);
     }
 
     const res = await axios.post(`${url}/profile/create`, formData, {
       headers: { "Content-Type": "multipart/form-data" }
     });
+    console.log(res.data);
 
     if (res.data.success) {
       toast.success("Profile updated successfully");
