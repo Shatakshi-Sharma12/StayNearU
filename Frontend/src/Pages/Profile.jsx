@@ -90,6 +90,10 @@ const saveProfileToServer = async () => {
   }
 };
 
+  const handleSaveProfile = (e) => {
+    e.preventDefault();
+    saveProfileToServer();
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-r from-blue-200 to-teal-50 mt-10 bg-gray-50 flex flex-col">
