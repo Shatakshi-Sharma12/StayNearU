@@ -12,7 +12,8 @@ import paymentRouter from "./routes/paymentRoutes.js";
 import bookingRouter from "./routes/bookingRoutes.js";
 // import reviewRouter from "./routes/reviewRoutes.js";
 import "./cronJobs.js"
-
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 const app=express();
 
 const corsOptions={
@@ -39,7 +40,7 @@ app.use("/pg",express.static('uploads/pg'))
 app.use("/make",paymentRouter)
 app.use("/booking",bookingRouter);
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+// const __dirname = path.dirname(fileURLToPath(import.meta.url));
 app.use(express.static(path.join(__dirname, '../frontend/dist')));
 app.get('*', (req, res) => {
  res.sendFile(path.join(__dirname, '../frontend/dist/index.html'));

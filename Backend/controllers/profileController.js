@@ -24,6 +24,9 @@ export const createOrUpdateProfile = async (req, res) => {
   try {
     const { name, email, phone, age, gender, parent, address, user } = req.body;
 
+    const profilePhoto = req?.files?.profilePhoto?.[0]?.path || null;
+    const aadharFile = req?.files?.aadharFile?.[0]?.path || null;
+
     if (!user || !email || !phone || !parent || !address) {
       return res.status(400).json({
         success: false,
@@ -31,9 +34,16 @@ export const createOrUpdateProfile = async (req, res) => {
       });
     }
 
+    const updateData = {
+      name, email, phone, age, gender, parent, address
+    };
+
+    if (profilePhoto) updateData.profilePhoto = profilePhoto;
+    if (aadharFile) updateData.aadharFile = aadharFile;
+
     const profile = await Profile.findOneAndUpdate(
       { user },
-      { name, email, phone, age, gender, parent, address },
+      updateData,
       { new: true, upsert: true }
     );
 
@@ -44,7 +54,5 @@ export const createOrUpdateProfile = async (req, res) => {
     res.status(500).json({ success: false, message: "Server error" });
   }
 };
-
-  
 
 export {getProfile};

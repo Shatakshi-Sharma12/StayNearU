@@ -50,34 +50,43 @@ function Profile() {
   }, []);
 
   // Function to hit API
-  const saveProfileToServer = async () => {
-    setLoading(true);
-    try {
-      const body = {
-        name: profile.name,
-        email: profile.email,
-        phone: profile.phone,
-        age: profile.age,
-        gender: profile.gender,
-        parent: profile.parent,
-        address: profile.address,
-        user: userId,
-      };
+const saveProfileToServer = async () => {
+  setLoading(true);
 
-      const res = await axios.post(`${url}/profile/create`, body);
+  try {
+    const formData = new FormData();
 
-      if (res.data.success) {
-        toast.success("Profile updated successfully");
-        setShowPopup(false);
-        navigate("/user/profile");
-      }
-    } catch (error) {
-      console.error(error);
-      toast.error("Failed to save profile.");
-    } finally {
-      setLoading(false);
+    Object.keys(profile).forEach((key) => {
+      formData.append(key, profile[key]);
+    });
+
+    formData.append("user", userId);
+
+    if (profile.profilePhotoFile) {
+      formData.append("profilePhoto", profile.profilePhotoFile);
     }
-  };
+
+    if (profile.aadharFileFile) {
+      formData.append("aadharFile", profile.aadharFileFile);
+    }
+
+    const res = await axios.post(`${url}/profile/create`, formData, {
+      headers: { "Content-Type": "multipart/form-data" }
+    });
+
+    if (res.data.success) {
+      toast.success("Profile updated successfully");
+      setShowPopup(false);
+      navigate("/user/profile");
+    }
+
+  } catch (error) {
+    console.error(error);
+    toast.error("Failed to save profile.");
+  } finally {
+    setLoading(false);
+  }
+};
 
   const handleSaveProfile = (e) => {
     e.preventDefault();
@@ -292,7 +301,29 @@ function Profile() {
                   className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-600"
                 ></textarea>
               </div>
+              <div>
+                <label className="block font-semibold text-gray-700">Profile Photo</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) =>
+                    setProfile({ ...profile, profilePhotoFile: e.target.files[0] })
+                  }
+                  className="w-full"
+                />
+              </div>
 
+              <div>
+                <label className="block font-semibold text-gray-700">Aadhar File</label>
+                <input
+                  type="file"
+                  accept=".jpg,.jpeg,.png,.pdf"
+                  onChange={(e) =>
+                    setProfile({ ...profile, aadharFileFile: e.target.files[0] })
+                  }
+                  className="w-full"
+                />
+              </div>
               {/* Buttons */}
               <div className="flex justify-end space-x-4">
                 <button
