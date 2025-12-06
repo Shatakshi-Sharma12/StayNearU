@@ -5,6 +5,9 @@ import axios from "axios";
 import { url } from "../utils/constant";
 import { toast } from "react-toastify";
 import { Link, useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { setProfileData } from "../Redux/profileSlice";
+
 
 function Profile() {
   const [greeting, setGreeting] = useState("");
@@ -17,6 +20,8 @@ function Profile() {
     parent: "",
     address: ""
   });
+  const dispatch = useDispatch();
+
   const [showPopup, setShowPopup] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -35,6 +40,7 @@ function Profile() {
       });
       if (res.data.success) {
         setProfile(res.data.profile);
+        dispatch(setProfileData(res.data.profile));
       }
     } catch (e) {
       console.error(e);
@@ -79,6 +85,7 @@ const saveProfileToServer = async () => {
 
     if (res.data.success) {
       toast.success("Profile updated successfully");
+       dispatch(setProfileData(res.data.profile));
       setShowPopup(false);
       navigate("/user/profile");
     }
