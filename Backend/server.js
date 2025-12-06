@@ -16,7 +16,8 @@ import "./cronJobs.js"
 const app=express();
 
 const corsOptions={
-    origin:'https://stay-near-u-qffm.vercel.app',
+    // origin:'https://stay-near-u-qffm.vercel.app',
+    origin: 'https://stay-near-u-8ryh-e86fyc8gf-shatakshi-sharmas-projects.vercel.app/',
     credentials:true,
 }
 // middleware
