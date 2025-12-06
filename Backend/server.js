@@ -20,7 +20,7 @@ const corsOptions={
     // origin:'https://stay-near-u-qffm.vercel.app',
     // origin: 'https://stay-near-u-8ryh-e86fyc8gf-shatakshi-sharmas-projects.vercel.app/',
     // origin:'https://stay-near-u-8ryh-6qqne3bke-shatakshi-sharmas-projects.vercel.app',
-    origin:'https://stay-near-u-8ryh-lri7n3q4a-shatakshi-sharmas-projects.vercel.app/',
+    origin:'*',
     credentials:true,
 }
 // middleware
