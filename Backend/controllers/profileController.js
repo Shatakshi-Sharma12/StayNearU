@@ -47,4 +47,4 @@ export const createOrUpdateProfile = async (req, res) => {
 
   
 
-export {getProfile,createOrUpdateProfile};
+export {getProfile};
