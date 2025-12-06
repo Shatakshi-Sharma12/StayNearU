@@ -38,8 +38,9 @@ export const createOrUpdateProfile = async (req, res) => {
       name, email, phone, age, gender, parent, address
     };
 
-    if (profilePhoto) updateData.profilePhoto = profilePhoto;
-    if (aadharFile) updateData.aadharFile = aadharFile;
+    if (profilePhoto) updateData.photo = profilePhoto;
+if (aadharFile) updateData.aadharCard = aadharFile;
+
 
     const profile = await Profile.findOneAndUpdate(
       { user },
